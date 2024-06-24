@@ -1,1 +1,1 @@
-﻿
+﻿global using SuggestionAppLibrary.DataAccess;
