@@ -1,4 +1,4 @@
-# SuggestionApp (Demo Web Application using Blazor & MongoDB for Future Use)
+# SuggestionApp (Demo Web Application For Future Use)
 
 A demo web project showcasing a suggestion website that logged in users can:
 - Autheticating
