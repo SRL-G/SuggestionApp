@@ -28,6 +28,19 @@ public class MongoSuggestionData : ISuggestionData
       return output;
    }
 
+   public async Task<List<SuggestionModel>> GetusersSuggestions(string userId)
+   {
+      var output = _cache.Get<List<SuggestionModel>>(userId);
+      if (output is null)
+      {
+         var results = await _suggestions.FindAsync(s => s.Author.Id == userId);
+         output = results.ToList();
+
+         _cache.Set(userId, output, TimeSpan.FromMinutes(1));
+      }
+      return output;
+   }
+
    public async Task<List<SuggestionModel>> GetAllApprovedSuggestions()
    {
       var output = await GetAllSuggestions();
