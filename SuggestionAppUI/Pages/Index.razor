@@ -13,7 +13,7 @@
 </div>
 
 <div class="row">
-    <div class="suggestion-count col-md-4 text-light mt-2">@suggestions?.Count Suggestions</div>
+    <div class="suggestions-count col-md-4 text-light mt-2">@suggestions?.Count Suggestions</div>
     <div class="col-md-4 col-xl-5 btn-group">
         <button class="btn btn-order @SortedByNewClass(true)" @onclick="(() => OrderByNew(true))">New</button>
         <button class="btn btn-order @SortedByNewClass(false)" @onclick="(() => OrderByNew(false))">Popular</button>
