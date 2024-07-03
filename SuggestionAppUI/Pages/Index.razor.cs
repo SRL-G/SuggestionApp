@@ -217,7 +217,7 @@ public partial class Index
       }
       else
       {
-         navManager.NavigateTo("/MicrosoftIdentit/Account/SignIn", true);
+         navManager.NavigateTo("/MicrosoftIdentity/Account/SignIn", true);
       }
    }
 
