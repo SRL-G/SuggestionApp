@@ -1,59 +1,56 @@
 namespace SuggestionAppUI.Pages;
 public partial class AdminApproval
 {
-   private List<SuggestionModel> submissions;
-   private SuggestionModel editingModel;
-   private string currentEditingTitle = "";
-   private string editedTitle = "";
-   private string currentEditingDescription = "";
-   private string editedDescription = "";
+   private List<SuggestionModel> _submissions = [];
+   private string _currentEditingTitle = string.Empty;
+   private string _editedTitle = string.Empty;
+   private string _currentEditingDescription = string.Empty;
+   private string _editedDescription = string.Empty;
 
    protected override async Task OnInitializedAsync()
    {
-      submissions = await suggestionData.GetAllSuggestionsWaitingForApproval();
+      _submissions = await suggestionData.GetAllSuggestionsWaitingForApproval();
    }
 
    private async Task ApproveSubmission(SuggestionModel submission)
    {
       submission.ApprovedForRelease = true;
-      submissions.Remove(submission);
+      _submissions.Remove(submission);
       await suggestionData.UpdateSuggestion(submission);
    }
 
    private async Task RejectSubmission(SuggestionModel submission)
    {
       submission.Rejected = true;
-      submissions.Remove(submission);
+      _submissions.Remove(submission);
       await suggestionData.UpdateSuggestion(submission);
    }
 
    private void EditTitle(SuggestionModel model)
    {
-      editingModel = model;
-      editedTitle = model.Suggestion;
-      currentEditingTitle = model.Id;
-      currentEditingDescription = "";
+      _editedTitle = model.Suggestion;
+      _currentEditingTitle = model.Id;
+      _currentEditingDescription = string.Empty;
    }
 
    private async Task SaveTitle(SuggestionModel model)
    {
-      currentEditingTitle = string.Empty;
-      model.Suggestion = editedTitle;
+      _currentEditingTitle = string.Empty;
+      model.Suggestion = _editedTitle;
       await suggestionData.UpdateSuggestion(model);
    }
 
    private void EditDescription(SuggestionModel model)
    {
-      editingModel = model;
-      editedDescription = model.Description;
-      currentEditingDescription = model.Id;
-      currentEditingTitle = "";
+      _editedDescription = model.Description;
+      _currentEditingDescription = model.Id;
+      _currentEditingTitle = string.Empty;
    }
 
    private async Task SaveDescription(SuggestionModel model)
    {
-      currentEditingDescription = string.Empty;
-      model.Description = editedDescription;
+      _currentEditingDescription = string.Empty;
+      model.Description = _editedDescription;
       await suggestionData.UpdateSuggestion(model);
    }
 

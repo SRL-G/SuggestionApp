@@ -3,14 +3,14 @@ using SuggestionAppUI.Models;
 namespace SuggestionAppUI.Pages;
 public partial class Create
 {
-   private CreateSuggestionModel suggestion = new();
-   private List<CategoryModel> categories;
-   private UserModel loggedInUser;
+   private CreateSuggestionModel _suggestion = new();
+   private List<CategoryModel> _categories = [];
+   private UserModel _loggedInUser = new();
 
-   protected async override Task OnInitializedAsync()
+   protected override async Task OnInitializedAsync()
    {
-      categories = await categoryData.GetAllCategories();
-      loggedInUser = await authProvider.GetUserFromAuth(userData);
+      _categories = await categoryData.GetAllCategories();
+      _loggedInUser = await authProvider.GetUserFromAuth(userData);
    }
 
    private void ClosePage()
@@ -20,20 +20,22 @@ public partial class Create
 
    private async Task CreateSuggestion()
    {
-      SuggestionModel s = new();
-      s.Suggestion = suggestion.Suggestion;
-      s.Description = suggestion.Description;
-      s.Author = new BasicUserModel(loggedInUser);
-      s.Category = categories.Where(c => c.Id == suggestion.CategoryId).FirstOrDefault();
+      SuggestionModel s = new()
+      {
+         Suggestion = _suggestion.Suggestion,
+         Description = _suggestion.Description,
+         Author = new BasicUserModel(_loggedInUser),
+         Category = _categories.Where(c => c.Id == _suggestion.CategoryId).FirstOrDefault()
+      };
 
       if (s.Category is null)
       {
-         suggestion.CategoryId = "";
+         _suggestion.CategoryId = "";
          return;
       }
 
       await suggestionData.CreateSuggestion(s);
-      suggestion = new();
+      _suggestion = new();
       ClosePage();
    }
 }

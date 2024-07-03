@@ -1,27 +1,27 @@
 namespace SuggestionAppUI.Pages;
 public partial class Profile
 {
-   private UserModel loggedInUser;
-   private List<SuggestionModel> submissions;
-   private List<SuggestionModel> approved;
-   private List<SuggestionModel> archived;
-   private List<SuggestionModel> pending;
-   private List<SuggestionModel> rejected;
+   private UserModel? _loggedInUser;
+   private List<SuggestionModel>? _submissions;
+   private List<SuggestionModel>? _approved;
+   private List<SuggestionModel>? _archived;
+   private List<SuggestionModel>? _pending;
+   private List<SuggestionModel>? _rejected;
 
    protected override async Task OnInitializedAsync()
    {
       //TODO - Replace with user lookup
-      loggedInUser = await authProvider.GetUserFromAuth(userData);
+      _loggedInUser = await authProvider.GetUserFromAuth(userData);
 
-      var results = await suggestionData.GetusersSuggestions(loggedInUser.Id);
+      var results = await suggestionData.GetusersSuggestions(_loggedInUser.Id);
 
-      if (loggedInUser is not null && results is not null)
+      if (_loggedInUser is not null && results is not null)
       {
-         submissions = results.OrderByDescending(s => s.DateCreated).ToList();
-         approved = submissions.Where(s => s.ApprovedForRelease && s.Archived == false && s.Rejected == false).ToList();
-         archived = submissions.Where(s => s.Archived && s.Rejected == false).ToList();
-         pending = submissions.Where(s => s.ApprovedForRelease == false && s.Rejected == false).ToList();
-         rejected = submissions.Where(s => s.Rejected).ToList();
+         _submissions = [.. results.OrderByDescending(s => s.DateCreated)];
+         _approved = [.. _submissions.Where(s => s.ApprovedForRelease && !s.Archived && !s.Rejected)];
+         _archived = [.. _submissions.Where(s => s.Archived && !s.Rejected)];
+         _pending = [.. _submissions.Where(s => !s.ApprovedForRelease && !s.Rejected).ToList()];
+         _rejected = [.. _submissions.Where(s => s.Rejected)];
       }
    }
 

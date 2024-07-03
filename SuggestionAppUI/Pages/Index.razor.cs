@@ -1,38 +1,38 @@
 namespace SuggestionAppUI.Pages;
 public partial class Index
 {
-   private UserModel loggedInUser;
-   private List<SuggestionModel> suggestions;
-   private List<CategoryModel> categories;
-   private List<StatusModel> statuses;
-   private SuggestionModel archivingSuggestion;
+   private UserModel? _loggedInUser;
+   private List<SuggestionModel>? _suggestions;
+   private List<CategoryModel> _categories = [];
+   private List<StatusModel> _statuses = [];
+   private SuggestionModel? _archivingSuggestion;
 
-   private string selectedCategory = "All";
-   private string selectedStatus = "All";
-   private string searchText = "";
-   private bool isSortedByNew = true;
-   private bool showCategories = false;
-   private bool showStatuses = false;
+   private string _selectedCategory = "All";
+   private string _selectedStatus = "All";
+   private string _searchText = string.Empty;
+   private bool _isSortedByNew = true;
+   private bool _showCategories = false;
+   private bool _showStatuses = false;
 
    protected override async Task OnInitializedAsync()
    {
-      categories = await categoryData.GetAllCategories();
-      statuses = await statusData.GetAllStatuses();
+      _categories = await categoryData.GetAllCategories();
+      _statuses = await statusData.GetAllStatuses();
       await LoadAndVerifyUser();
    }
 
    private async Task ArchiveSuggestion()
    {
-      archivingSuggestion.Archived = true;
-      await suggestionData.UpdateSuggestion(archivingSuggestion);
-      suggestions.Remove(archivingSuggestion);
-      archivingSuggestion = null;
+      _archivingSuggestion!.Archived = true;
+      await suggestionData.UpdateSuggestion(_archivingSuggestion);
+      _suggestions!.Remove(_archivingSuggestion);
+      _archivingSuggestion = null;
       //await FilterSuggestions();
    }
 
    private void LoadCreatePage()
    {
-      if (loggedInUser is not null)
+      if (_loggedInUser is not null)
       {
          navManager.NavigateTo("/Create");
       }
@@ -45,53 +45,52 @@ public partial class Index
    private async Task LoadAndVerifyUser()
    {
       var authState = await authProvider.GetAuthenticationStateAsync();
-      string objectId = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier"))?.Value;
+      string? objectId = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("objectidentifier"))?.Value;
 
       if (string.IsNullOrWhiteSpace(objectId) == false)
       {
-         loggedInUser = await userData.GetUserFromAuthentication(objectId) ?? new();
-
-         string firstName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("givenname"))?.Value;
-         string lastName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("surname"))?.Value;
-         string displayName = authState.User.Claims.FirstOrDefault(c => c.Type.Equals("name"))?.Value;
-         string email = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("email"))?.Value;
+         _loggedInUser = await userData.GetUserFromAuthentication(objectId) ?? new();
+         string firstName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("givenname"))?.Value!;
+         string lastName = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("surname"))?.Value!;
+         string displayName = authState.User.Claims.FirstOrDefault(c => c.Type.Equals("name"))?.Value!;
+         string email = authState.User.Claims.FirstOrDefault(c => c.Type.Contains("email"))?.Value!;
 
          bool isDirty = false;
-         if (objectId.Equals(loggedInUser.ObjectIdentifier) == false)
+         if (objectId.Equals(_loggedInUser.ObjectIdentifier) == false)
          {
             isDirty = true;
-            loggedInUser.ObjectIdentifier = objectId;
+            _loggedInUser.ObjectIdentifier = objectId;
          }
-         if (firstName.Equals(loggedInUser.FirstName) == false)
+         if (firstName.Equals(_loggedInUser.FirstName) == false)
          {
             isDirty = true;
-            loggedInUser.FirstName = firstName;
+            _loggedInUser.FirstName = firstName;
          }
-         if (lastName.Equals(loggedInUser.LastName) == false)
+         if (lastName.Equals(_loggedInUser.LastName) == false)
          {
             isDirty = true;
-            loggedInUser.LastName = lastName;
+            _loggedInUser.LastName = lastName;
          }
-         if (displayName.Equals(loggedInUser.DisplayName) == false)
+         if (displayName.Equals(_loggedInUser.DisplayName) == false)
          {
             isDirty = true;
-            loggedInUser.DisplayName = displayName;
+            _loggedInUser.DisplayName = displayName;
          }
-         if (email.Equals(loggedInUser.EmailAddress) == false)
+         if (email.Equals(_loggedInUser.EmailAddress) == false)
          {
             isDirty = true;
-            loggedInUser.EmailAddress = email;
+            _loggedInUser.EmailAddress = email;
          }
 
          if (isDirty)
          {
-            if (string.IsNullOrWhiteSpace(loggedInUser.Id))
+            if (string.IsNullOrWhiteSpace(_loggedInUser.Id))
             {
-               await userData.CreateUser(loggedInUser);
+               await userData.CreateUser(_loggedInUser);
             }
             else
             {
-               await userData.UpdateUser(loggedInUser);
+               await userData.UpdateUser(_loggedInUser);
             }
          }
       }
@@ -109,109 +108,111 @@ public partial class Index
 
    private async Task LoadFilterState()
    {
-      var stringResults = await sessionStorage.GetAsync<string>(nameof(selectedCategory));
-      selectedCategory = stringResults.Success ? stringResults.Value : "All";
+      var stringResults = await sessionStorage.GetAsync<string>(nameof(_selectedCategory));
+      _selectedCategory = stringResults.Success ? stringResults.Value! : "All";
 
-      stringResults = await sessionStorage.GetAsync<string>(nameof(selectedStatus));
-      selectedStatus = stringResults.Success ? stringResults.Value : "All";
+      stringResults = await sessionStorage.GetAsync<string>(nameof(_selectedStatus));
+      _selectedStatus = stringResults.Success ? stringResults.Value! : "All";
 
-      stringResults = await sessionStorage.GetAsync<string>(nameof(searchText));
-      searchText = stringResults.Success ? stringResults.Value : "";
+      stringResults = await sessionStorage.GetAsync<string>(nameof(_searchText));
+      _searchText = stringResults.Success ? stringResults.Value! : "";
 
-      var boolResults = await sessionStorage.GetAsync<bool>(nameof(isSortedByNew));
-      isSortedByNew = stringResults.Success ? boolResults.Value : true;
+      var boolResults = await sessionStorage.GetAsync<bool>(nameof(_isSortedByNew));
+      _isSortedByNew = !stringResults.Success || boolResults.Value;
    }
 
    private async Task SaveFilterState()
    {
-      await sessionStorage.SetAsync(nameof(selectedCategory), selectedCategory);
-      await sessionStorage.SetAsync(nameof(selectedStatus), selectedStatus);
-      await sessionStorage.SetAsync(nameof(searchText), searchText);
-      await sessionStorage.SetAsync(nameof(isSortedByNew), isSortedByNew);
+      await sessionStorage.SetAsync(nameof(_selectedCategory), _selectedCategory);
+      await sessionStorage.SetAsync(nameof(_selectedStatus), _selectedStatus);
+      await sessionStorage.SetAsync(nameof(_searchText), _searchText);
+      await sessionStorage.SetAsync(nameof(_isSortedByNew), _isSortedByNew);
    }
 
    private async Task FilterSuggestions()
    {
       var output = await suggestionData.GetAllApprovedSuggestions();
 
-      if (selectedCategory != "All")
+      if (_selectedCategory != "All")
       {
-         output = output.Where(s => s.Category?.CategoryName == selectedCategory).ToList();
+         output = output.Where(s => s.Category?.CategoryName == _selectedCategory).ToList();
       }
 
-      if (selectedStatus != "All")
+      if (_selectedStatus != "All")
       {
-         output = output.Where(s => s.SuggestionStatus?.StatusName == selectedStatus).ToList();
+         output = output.Where(s => s.SuggestionStatus?.StatusName == _selectedStatus).ToList();
       }
 
-      if (string.IsNullOrWhiteSpace(searchText) == false)
+      if (string.IsNullOrWhiteSpace(_searchText) == false)
       {
          output = output.Where(
-             s => s.Suggestion.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
-             s.Description.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)
+             s => s.Suggestion.Contains(_searchText, StringComparison.InvariantCultureIgnoreCase) ||
+             s.Description.Contains(_searchText, StringComparison.InvariantCultureIgnoreCase)
          ).ToList();
       }
 
-      if (isSortedByNew)
+      if (_isSortedByNew)
       {
-         output = output.OrderByDescending(s => s.DateCreated).ToList();
+         output = [.. output.OrderByDescending(s => s.DateCreated)];
       }
       else
       {
-         output = output.OrderByDescending(s => s.UserVotes.Count)
-                         .ThenByDescending(s => s.DateCreated).ToList();
+         output = [.. output.OrderByDescending(s => s.UserVotes.Count).ThenByDescending(s => s.DateCreated)];
       }
 
-      suggestions = output;
+      _suggestions = output;
 
       await SaveFilterState();
    }
 
    private async Task OrderByNew(bool isNew)
    {
-      isSortedByNew = isNew;
+      _isSortedByNew = isNew;
       await FilterSuggestions();
    }
 
-   private async Task OnSearchInput(string searchInput)
+   private async Task OnSearchInput(string? searchInput)
    {
-      searchText = searchInput;
-      await FilterSuggestions();
+      if (searchInput != null)
+      {
+         _searchText = searchInput;
+         await FilterSuggestions();
+      }
    }
 
    private async Task OnCategoryClick(string category = "All")
    {
-      selectedCategory = category;
-      showCategories = false;
+      _selectedCategory = category;
+      _showCategories = false;
       await FilterSuggestions();
    }
 
    private async Task OnStatusClick(string status = "All")
    {
-      selectedStatus = status;
-      showStatuses = false;
+      _selectedStatus = status;
+      _showStatuses = false;
       await FilterSuggestions();
    }
 
    private async Task VoteUp(SuggestionModel suggestion)
    {
-      if (loggedInUser is not null)
+      if (_loggedInUser is not null)
       {
-         if (suggestion.Author.Id == loggedInUser.Id)
+         if (suggestion.Author.Id == _loggedInUser.Id)
          {
             // can't vote on your own suggestion
             return;
          }
-         if (suggestion.UserVotes.Add(loggedInUser.Id) == false)
+         if (suggestion.UserVotes.Add(_loggedInUser.Id) == false)
          {
-            suggestion.UserVotes.Remove(loggedInUser.Id);
+            suggestion.UserVotes.Remove(_loggedInUser.Id);
          }
 
-         await suggestionData.UpvoteSuggestion(suggestion.Id, loggedInUser.Id);
+         await suggestionData.UpvoteSuggestion(suggestion.Id, _loggedInUser.Id);
 
-         if (isSortedByNew == false)
+         if (_isSortedByNew == false)
          {
-            suggestions = suggestions.OrderByDescending(s => s.UserVotes.Count).ThenByDescending(s => s.DateCreated).ToList();
+            _suggestions = [.. _suggestions!.OrderByDescending(s => s.UserVotes.Count).ThenByDescending(s => s.DateCreated)];
          }
       }
       else
@@ -228,27 +229,13 @@ public partial class Index
       }
       else
       {
-         if (suggestion.Author.Id == loggedInUser?.Id)
-         {
-            return "Awaiting";
-         }
-         else
-         {
-            return "Click To";
-         }
+         return suggestion.Author.Id == _loggedInUser?.Id ? "Awaiting" : "Click To";
       }
    }
 
-   private string GetUpvoteBottomText(SuggestionModel suggestion)
+   private static string GetUpvoteBottomText(SuggestionModel suggestion)
    {
-      if (suggestion.UserVotes?.Count > 1)
-      {
-         return "Upvotes";
-      }
-      else
-      {
-         return "Upvote";
-      }
+      return suggestion.UserVotes?.Count > 1 ? "Upvotes" : "Upvote";
    }
 
    private void OpenDetails(SuggestionModel suggestion)
@@ -258,14 +245,7 @@ public partial class Index
 
    private string SortedByNewClass(bool isNew)
    {
-      if (isNew == isSortedByNew)
-      {
-         return "sort-selected";
-      }
-      else
-      {
-         return "";
-      }
+      return isNew == _isSortedByNew ? "sort-selected" : string.Empty;
    }
 
    private string GetVoteClass(SuggestionModel suggestion)
@@ -274,7 +254,7 @@ public partial class Index
       {
          return "suggestion-entry-no-votes";
       }
-      else if (suggestion.UserVotes.Contains(loggedInUser?.Id))
+      else if (suggestion.UserVotes.Contains(_loggedInUser?.Id))
       {
          return "suggestion-entry-voted";
       }
@@ -284,7 +264,7 @@ public partial class Index
       }
    }
 
-   private string GetSuggestionStatusClass(SuggestionModel suggestion)
+   private static string GetSuggestionStatusClass(SuggestionModel suggestion)
    {
       if (suggestion is null || suggestion.SuggestionStatus is null)
       {
@@ -305,25 +285,11 @@ public partial class Index
 
    private string GetSelectedCategory(string category = "All")
    {
-      if (category == selectedCategory)
-      {
-         return "selected-category";
-      }
-      else
-      {
-         return "";
-      }
+      return category == _selectedCategory ? "selected-category" : string.Empty;
    }
 
    private string GetSelectedStatus(string status = "All")
    {
-      if (status == selectedStatus)
-      {
-         return "selected-status";
-      }
-      else
-      {
-         return "";
-      }
+      return status == _selectedStatus ? "selected-status" : string.Empty;
    }
 }

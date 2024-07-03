@@ -15,22 +15,22 @@
         <div class="close-button-section">
             <button class="btn btn-close" @onclick="ClosePage"></button>
         </div>
-        @if (categories is not null)
+        @if (_categories is not null)
         {
-            <EditForm Model="suggestion" OnValidSubmit="CreateSuggestion">
+            <EditForm Model="_suggestion" OnValidSubmit="CreateSuggestion">
                 <DataAnnotationsValidator/>
                 <ValidationSummary/>
                 <div class="input-section">
                     <label class="form-label fw-bold text-uppercase" for="suggestion-text">Suggestion</label>
                     <div class="input-description">Focus on the topic or technology you want to learn about.</div>
-                    <InputText class="form-control" id="suggestion-text" @bind-Value="suggestion.Suggestion"></InputText>
+                    <InputText class="form-control" id="suggestion-text" @bind-Value="_suggestion.Suggestion"></InputText>
                 </div>
                 <div class="input-section">
                     <label class="form-label fw-bold text-uppercase" for="category">Category</label>
                     <div class ="input-description">Choose one category.</div>
                     <div class="col-lg-8">
-                        <MyInputRadioGroup id="category" @bind-Value="suggestion.CategoryId">
-                            @foreach (var c in categories)
+                        <MyInputRadioGroup id="category" @bind-Value="_suggestion.CategoryId">
+                            @foreach (var c in _categories)
                             {
                                 <div class="radio-item-group">
                                     <InputRadio Value="@c.Id" id="@c.Id"/>
@@ -43,7 +43,7 @@
                 <div class="input-section">
                     <label class="form-label fw-bold text-uppercase" for="description">Description</label>
                     <div class ="input-description">Briefly describe your suggestion.</div>
-                    <InputTextArea class="form-control" id="description" @bind-Value="suggestion.Description"></InputTextArea>
+                    <InputTextArea class="form-control" id="description" @bind-Value="_suggestion.Description"></InputTextArea>
                 </div>
                 <div class="center-children">
                     <button class="btn btn-main btn-lg text-uppercase" type="submit">Suggest</button>
