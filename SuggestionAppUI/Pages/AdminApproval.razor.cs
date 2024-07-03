@@ -53,9 +53,4 @@ public partial class AdminApproval
       model.Description = _editedDescription;
       await suggestionData.UpdateSuggestion(model);
    }
-
-   private void ClosePage()
-   {
-      navManager.NavigateTo("/");
-   }
 }

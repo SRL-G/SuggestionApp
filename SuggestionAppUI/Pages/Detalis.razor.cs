@@ -6,13 +6,13 @@ public partial class Detalis
    [Parameter]
    public string? Id { get; set; }
 
-   private SuggestionModel _suggestion = new();
-   private UserModel _loggedInUser = new();
-   private List<StatusModel> _statuses = [];
+   private SuggestionModel? _suggestion;
+   private UserModel? _loggedInUser;
+   private List<StatusModel>? _statuses;
    private string? _settingStatus = string.Empty;
    private string _urlText = string.Empty;
 
-   protected override async Task OnInitializedAsync()
+   protected async override Task OnInitializedAsync()
    {
       _suggestion = await suggestionData.GetSuggestion(Id);
       _loggedInUser = await authProvider.GetUserFromAuth(userData);
@@ -21,6 +21,11 @@ public partial class Detalis
 
    private async Task CompleteSetStatus()
    {
+      if (_suggestion is null)
+      {
+         return;
+      }
+      var status = _statuses?.First(s => s.StatusName.Equals(_settingStatus, StringComparison.OrdinalIgnoreCase));
       switch (_settingStatus)
       {
          case "completed":
@@ -28,19 +33,19 @@ public partial class Detalis
             {
                return;
             }
-            _suggestion.SuggestionStatus = _statuses.First(s => s.StatusName.ToLower().Equals(_settingStatus.ToLower()));
+            _suggestion.SuggestionStatus = status;
             _suggestion.OwnerNotes = $"You are right, this is an important topic for developers. We created a resource about it here: <a href='{_urlText}' target='_blank'>{_urlText}</a>";
             break;
          case "watching":
-            _suggestion.SuggestionStatus = _statuses.First(s => s.StatusName.ToLower().Equals(_settingStatus.ToLower()));
+            _suggestion.SuggestionStatus = status;
             _suggestion.OwnerNotes = $"We noticed the interest this suggestion is getting! If more people are interested we may adress this topic in an upcoming resource.";
             break;
          case "upcoming":
-            _suggestion.SuggestionStatus = _statuses.First(s => s.StatusName.ToLower().Equals(_settingStatus.ToLower()));
+            _suggestion.SuggestionStatus = status;
             _suggestion.OwnerNotes = $"Great suggestion! We have a resource in the pipeline to address this topic.";
             break;
          case "dismissed":
-            _suggestion.SuggestionStatus = _statuses.First(s => s.StatusName.ToLower().Equals(_settingStatus.ToLower()));
+            _suggestion.SuggestionStatus = status;
             _suggestion.OwnerNotes = $"Sometimes a good idea doesn't fit within our scope and vision. This is one of those ideas.";
             break;
          default:
@@ -51,43 +56,45 @@ public partial class Detalis
       await suggestionData.UpdateSuggestion(_suggestion);
    }
 
-   private void ClosePage()
-   {
-      navManager.NavigateTo("/");
-   }
-
    private string GetUpvoteTopText()
    {
-      if (_suggestion.UserVotes?.Count > 0)
+      if (_suggestion?.UserVotes?.Count > 0)
       {
          return _suggestion.UserVotes.Count.ToString("00");
       }
       else
       {
-         return _suggestion.Author.Id == _loggedInUser?.Id ? "Awaiting" : "Click To";
+         if (_suggestion?.Author.Id == _loggedInUser?.Id)
+         {
+            return "Awaiting";
+         }
+         else
+         {
+            return "Click To";
+         }
       }
    }
 
    private string GetUpvoteBottomText()
    {
-      return _suggestion.UserVotes?.Count > 1 ? "Upvotes" : "Upvote";
+      return _suggestion?.UserVotes?.Count > 1 ? "Upvotes" : "Upvote";
    }
 
    private async Task VoteUp()
    {
       if (_loggedInUser is not null)
       {
-         if (_suggestion.Author.Id == _loggedInUser.Id)
+         if (_suggestion?.Author.Id == _loggedInUser.Id)
          {
             // can't vote on your own suggestion
             return;
          }
-         if (_suggestion.UserVotes.Add(_loggedInUser.Id) == false)
+         if (_suggestion?.UserVotes.Add(_loggedInUser.Id) == false)
          {
             _suggestion.UserVotes.Remove(_loggedInUser.Id);
          }
 
-         await suggestionData.UpvoteSuggestion(_suggestion.Id, _loggedInUser.Id);
+         await suggestionData.UpvoteSuggestion(_suggestion?.Id, _loggedInUser.Id);
       }
       else
       {
@@ -97,7 +104,7 @@ public partial class Detalis
 
    private string GetVoteClass()
    {
-      if (_suggestion.UserVotes is null || _suggestion.UserVotes.Count == 0)
+      if (_suggestion?.UserVotes is null || _suggestion.UserVotes.Count == 0)
       {
          return "suggestion-detail-no-votes";
       }

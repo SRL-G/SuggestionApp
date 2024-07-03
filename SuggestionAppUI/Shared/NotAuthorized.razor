@@ -1,4 +1,4 @@
-﻿@inject NavigationManager navManager
+﻿@* @inject NavigationManager navManager *@
 
 <div class="row justify-content-center">
     <div class="col-xl-8 col-lg-10 form-layout">
@@ -11,16 +11,18 @@
                     suggestions.
                 </p>
             </div>
+            <CloseButton></CloseButton>
+            @* 
             <div class="col-1 close-button-section">
                 <button class="btn btn-close" @onclick="ClosePage"></button>
-            </div>
+            </div> *@
         </div>
     </div>
 </div>
 
-@code {
+@* @code {
     private void ClosePage()
     {
         navManager.NavigateTo("/");
     }
-}
+} *@

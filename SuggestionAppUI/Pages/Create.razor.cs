@@ -13,11 +13,6 @@ public partial class Create
       _loggedInUser = await authProvider.GetUserFromAuth(userData);
    }
 
-   private void ClosePage()
-   {
-      navManager.NavigateTo("/");
-   }
-
    private async Task CreateSuggestion()
    {
       SuggestionModel s = new()
@@ -30,12 +25,12 @@ public partial class Create
 
       if (s.Category is null)
       {
-         _suggestion.CategoryId = "";
+         _suggestion.CategoryId = string.Empty;
          return;
       }
 
       await suggestionData.CreateSuggestion(s);
       _suggestion = new();
-      ClosePage();
+      navManager.NavigateTo("/");
    }
 }

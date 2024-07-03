@@ -12,9 +12,11 @@
 
 <div class="row justify-content-center create-form">
     <div class="col-xl-8 col-lg-10 form-layout">
+        <CloseButton></CloseButton>
+        @* 
         <div class="close-button-section">
             <button class="btn btn-close" @onclick="ClosePage"></button>
-        </div>
+        </div> *@
         @if (_categories is not null)
         {
             <EditForm Model="_suggestion" OnValidSubmit="CreateSuggestion">
