@@ -15,12 +15,9 @@ public static class RegisterServices
 
       builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAdB2C"));
 
-      builder.Services.AddAuthorization(optiones =>
+      builder.Services.AddAuthorizationBuilder().AddPolicy("Admin", policy =>
       {
-         optiones.AddPolicy("Admin", policy =>
-         {
-            policy.RequireClaim("jobTitle", "Admin");
-         });
+         policy.RequireClaim("jobTitle", "Admin");
       });
 
       builder.Services.AddSingleton<IDbConnection, DbConnection>();

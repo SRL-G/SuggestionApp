@@ -1,6 +1,4 @@
-﻿
-namespace SuggestionAppLibrary.DataAccess;
-
+﻿namespace SuggestionAppLibrary.DataAccess;
 public interface ISuggestionData
 {
    Task CreateSuggestion(SuggestionModel suggestion);

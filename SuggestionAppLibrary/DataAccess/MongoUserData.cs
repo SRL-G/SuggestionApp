@@ -1,12 +1,7 @@
 ﻿namespace SuggestionAppLibrary.DataAccess;
-public class MongoUserData : IUserData
+public class MongoUserData(IDbConnection db) : IUserData
 {
-   private readonly IMongoCollection<UserModel> _users;
-
-   public MongoUserData(IDbConnection db)
-   {
-      _users = db.UserCollection;
-   }
+   private readonly IMongoCollection<UserModel> _users = db.UserCollection;
 
    public async Task<List<UserModel>> GetUsersAsync()
    {

@@ -1,25 +1,18 @@
 ﻿namespace SuggestionAppLibrary.DataAccess;
-public class MongoStatusData : IStatusData
+public class MongoStatusData(IDbConnection db, IMemoryCache cache) : IStatusData
 {
-   private readonly IMemoryCache _cache;
-   private readonly IMongoCollection<StatusModel> _statuses;
-   private const string CacheName = "StatusData";
-
-   public MongoStatusData(IDbConnection db, IMemoryCache cache)
-   {
-      _statuses = db.StatusCollection;
-      _cache = cache;
-   }
+   private readonly IMongoCollection<StatusModel> _statuses = db.StatusCollection;
+   private const string _cacheName = "StatusData";
 
    public async Task<List<StatusModel>> GetAllStatuses()
    {
-      var output = _cache.Get<List<StatusModel>>(CacheName);
+      var output = cache.Get<List<StatusModel>>(_cacheName);
       if (output is null)
       {
          var results = await _statuses.FindAsync(_ => true);
          output = results.ToList();
 
-         _cache.Set(CacheName, output, TimeSpan.FromDays(1));
+         cache.Set(_cacheName, output, TimeSpan.FromDays(1));
       }
       return output;
    }

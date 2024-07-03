@@ -1,6 +1,4 @@
-﻿
-namespace SuggestionAppLibrary.DataAccess;
-
+﻿namespace SuggestionAppLibrary.DataAccess;
 public interface IStatusData
 {
    Task CreateStatus(StatusModel status);

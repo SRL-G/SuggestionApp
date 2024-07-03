@@ -1,6 +1,4 @@
-﻿
-namespace SuggestionAppLibrary.DataAccess;
-
+﻿namespace SuggestionAppLibrary.DataAccess;
 public interface IUserData
 {
    Task CreateUser(UserModel user);
