@@ -6,4 +6,4 @@ A demo web project showcasing a suggestion website that logged in users can:
 - Post new Suggestions for admin approval
 - Vote on posted suggestions
 
-The Web Application uses .NET 8, Blazor Server, MongoDB and Azure Active Directory B2C.
+The Web Application uses .NET 8, Blazor Web App, MongoDB and Azure Active Directory B2C.
