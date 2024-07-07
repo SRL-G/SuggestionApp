@@ -1,0 +1,119 @@
+﻿@page "/Details/{Id}"
+@inject AuthenticationStateProvider authProvider
+@inject NavigationManager navManager
+@inject IUserData userData
+@inject ISuggestionData suggestionData
+@inject IStatusData statusData
+
+<h1 class="page-heading text-uppercase mb-4">Suggestion Details</h1>
+
+<div class="row justify-content-center detail-form">
+    <div class="col-xl-8 col-lg-10 form-layout">
+        @if (_suggestion is not null)
+        {
+            <div class="row suggestion-detail-row">
+                <div class="col-11 suggestion-detail">
+                    <div>
+                        <div class="@GetVoteClass()" @onclick="VoteUp">
+                            <div class="text-uppercase">@GetUpvoteTopText()</div>
+                            <span class="oi oi-caret-top detail-upvote"></span>
+                            <div class="text-uppercase">@GetUpvoteBottomText()</div>
+                        </div>
+                        <div class="suggestion-detail-date">
+                            <div>@_suggestion.DateCreated.ToString("MM.dd.yyyy")</div>
+                        </div>
+                    </div>
+                    <div class="suggestion-detail-text">
+                        <div class="fw-bold mb-2 suggestion-detail-suggestion">@_suggestion.Suggestion</div>
+                        <div class="mb-2 suggestion-detail-author">@_suggestion.Author.DisplayName</div>
+                        <div class="mb-2 d-none d-md-block">@_suggestion.Description</div>
+                        <div class="suggestion-entry-text-category d-none d-md-block">
+                            @_suggestion.Category.CategoryName
+                        </div>
+                    </div>
+                </div>
+                <CloseButton></CloseButton>
+                <div class="row d-block d-md-none">
+                    <div class="suggestion-detail-text">
+                        <div>@_suggestion.Description</div>
+                        <div class="suggestion-entry-text-category">@_suggestion.Category.CategoryName</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (_suggestion?.SuggestionStatus is not null)
+{
+    <div class="row justify-content-center detail-form">
+        <div class="col-xl-8 col-lg-10 suggestion-results form-layout">
+            <div class="@GetStatusClass()"></div>
+            <div class="suggestion-detail-status-section">
+                <div class="suggestion-detail-status fw-bold mb-2 suggestion-detail-suggestion">
+                    @_suggestion.SuggestionStatus.StatusName
+                </div>
+                <div class="suggestion-detail-owner-notes">
+                    @((MarkupString)_suggestion.OwnerNotes)
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_suggestion is not null)
+{
+    <AuthorizeView Policy="Admin">
+        <div class="row justify-content-center detail-form">
+            <div class="col-xl-8 col-lg-10 form-layout admin-details">
+                <div>
+                    <div class="suggestion-detail-status fw-bold mb-2 suggestion-detail-suggestion">
+                        Set Status
+                    </div>
+                    @if (string.IsNullOrWhiteSpace(_settingStatus))
+                    {
+                        <div class="admin-set-statuses">
+                            <button @onclick="@(() => _settingStatus = "completed")" class="btn suggestion-entry-text-category btn-archive btn-status-completed">
+                                completed
+                            </button>
+                            <button @onclick="@(() => _settingStatus = "watching")" class="btn suggestion-entry-text-category btn-archive btn-status-watching">
+                                watching
+                            </button>
+                            <button @onclick="@(() => _settingStatus = "upcoming")" class="btn suggestion-entry-text-category btn-archive btn-status-upcoming">
+                                upcoming
+                            </button>
+                            <button @onclick="@(() => _settingStatus = "dismissed")" class="btn suggestion-entry-text-category btn-archive btn-status-dismissed">
+                                dismissed
+                            </button>
+                        </div>
+                    }
+                    else if (_settingStatus == "completed")
+                    {
+                        <div>
+                            <input @bind="_urlText" class="form-control rounded-control" type="text" placeholder="Url" aria-label="Content Url"/>
+                        </div>
+                        <div class="suggestion-entry-bottom">
+                            <button class="btn btn-archive-confirm" @onclick="CompleteSetStatus">
+                                confirm
+                            </button>
+                            <button class="btn btn-archive-reject" @onclick="(() => _settingStatus = null)">
+                                cancel
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="suggestion-entry-bottom">
+                            <button class="btn btn-archive-confirm" @onclick="CompleteSetStatus">
+                                confirm
+                            </button>
+                            <button class="btn btn-archive-reject" @onclick="(() => _settingStatus = null)">
+                                cancel
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </AuthorizeView>
+}

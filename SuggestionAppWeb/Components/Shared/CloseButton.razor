@@ -1,0 +1,12 @@
+﻿@inject NavigationManager navManager
+
+<div class="close-button-section">
+    <button class="btn btn-close" @onclick="Close"></button>
+</div>
+
+@code {
+    public void Close()
+    {
+        navManager.NavigateTo("/");
+    }
+}

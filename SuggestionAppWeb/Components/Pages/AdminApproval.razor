@@ -1,0 +1,70 @@
+﻿@page "/AdminApproval"
+@attribute [Authorize(Policy = "Admin")]
+@inject ISuggestionData suggestionData
+@inject IUserData userData
+
+<h1 class="page-heading text-uppercase mb-4">Pending Submissions</h1>
+
+<div class="row">
+    <div class="suggestions-count col-8 mt-2">@_submissions?.Count Submissions</div>
+    <CloseButton></CloseButton>
+</div>
+
+@if (_submissions is not null)
+{
+    foreach (var s in _submissions)
+    {
+        <div class="row submission">
+            <div class="col-lg-2 col-md-3 col-sm-4">
+                <button class="btn btn-approve" @onclick="(() => ApproveSubmission(s))">Approve</button>
+                <button class="btn btn-reject" @onclick="(() => RejectSubmission(s))">Reject</button>
+            </div>
+            <div class="col-lg-10 col-md-9 col-sm-8">
+                <div>
+                    @if (_currentEditingTitle == s.Id)
+                    {
+                        <EditForm class="approval-edit-form" Model="@_editedTitle" OnSubmit="(() => SaveTitle(s))">
+                            <InputText class="form-control approval-edit-field" @bind-Value="_editedTitle"/>
+                            <button class="btn" type="submit">
+                                <span class="oi oi-check submission-edit-approve"></span>
+                            </button>
+                            <button type="button" class="btn" @onclick="(() => _currentEditingTitle = string.Empty)">
+                                <span class="oi oi-x submission-edit-reject"></span>
+                            </button>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        @s.Suggestion
+                        <span class="oi oi-pencil submission-edit-icon" @onclick="(() => EditTitle(s))"></span>
+                    }
+                </div>
+                <div>
+                    @s.Category.CategoryName
+                </div>
+                <div>
+                    @s.Author.DisplayName
+                </div>
+                <div>
+                    @if (_currentEditingDescription == s.Id)
+                    {
+                        <EditForm class="approval-edit-form" Model="@_editedDescription" OnSubmit="(() => SaveDescription(s))">
+                            <InputText class="form-control approval-edit-field" @bind-Value="_editedDescription"/>
+                            <button class="btn" type="submit">
+                                <span class="oi oi-check submission-edit-approve"></span>
+                            </button>
+                            <button type="button" class="btn" @onclick="(() => _currentEditingDescription = string.Empty)">
+                                <span class="oi oi-x submission-edit-reject"></span>
+                            </button>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        @s.Description
+                        <span class="oi oi-pencil submission-edit-icon" @onclick="(() => EditDescription(s))"></span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
